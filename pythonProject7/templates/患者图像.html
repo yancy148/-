@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Images</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+     <!-- 日期选择器 -->
+     <form action="{{ url_for('patient_image') }}" method="GET">
+        <label for="study_date">选择日期:</label>
+        <input type="date" id="study_date" name="study_date">
+        <button type="submit">查看图像</button>
+    </form>
+    <div class="container">
+        <h1>患者所有图像</h1>
+        <div class="image-grid">
+            {% for image in images %}
+                <div class="image-item">
+                    <img src="data:image/png;base64,{{ image.img_base64 }}" alt="DICOM Image" id="dicom-image-{{ loop.index0 }}">
+                    <p>Patient's Name: {{ image.patient_name }}</p>
+                    <p>Study Date: {{ image.study_date }}</p>
+                    <button onclick="printImage({{ loop.index0 }})">打印图像</button>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="logout-button">退出</a>
+    <script>
+        function printImage(index) {
+            // 获取图像元素
+            const imgId = `dicom-image-${index}`;
+            const img = document.getElementById(imgId);
+
+            // 创建一个新的窗口并加载图像
+            const popup = window.open('', '_blank', 'width=600,height=400');
+            popup.document.write('<html><head><title>Print Image</title></head><body>');
+            popup.document.write(`<img src="${img.src}" />`);
+            popup.document.write('</body></html>');
+            popup.document.close();
+
+            // 打印新窗口的内容
+            popup.print();
+        }
+    </script>
+</body>
+</html>
